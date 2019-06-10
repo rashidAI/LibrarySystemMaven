@@ -1,0 +1,1 @@
+[{"id":1,"name":"admin","email":"admin@librarySys.com","password":"admin@lib","mobileNumber":99999999,"userType":"Admin"},{"id":2,"name":"abc","email":"abc@abc.com","password":"abc","mobileNumber":12345,"userType":"Librarian"},{"id":2,"name":"agc","email":"agc@agc.com","password":"agc345","mobileNumber":3245,"userType":"Librarian"}]
