@@ -9,6 +9,8 @@ import com.mobilelive.model.User;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ public class BookService {
 
     private static List<Book> books = new ArrayList<>();
     private StudentService studentService = new StudentService();
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     static {
@@ -39,18 +42,24 @@ public class BookService {
 
         if(!bookFind.isPresent()){
             if (books.size() > 0 ){
-                Book bookInt = (Book) books.stream()
-                        .max(Comparator.comparing(Book::getId)).get();
-                currentBookId = bookInt.getId();
-                newBook = new Book(currentBookId+1,
-                        book.getCallno(),
-                        book.getName(),
-                        book.getAuthor(),
-                        book.getPublisher(),
-                        book.getQuantity(),
-                        book.getIssuedNo()) ;
+                try{
+                    Book bookInt = (Book) books.stream()
+                            .max(Comparator.comparing(Book::getId)).get();
+                    currentBookId = bookInt.getId();
+                } catch(Exception ex){
+                    System.out.println( ex );
+                    return "Some error accoured while adding book";
+                }
             }
-            books.add(book);
+            newBook = new Book(++currentBookId,
+                    book.getCallno(),
+                    book.getName(),
+                    book.getAuthor(),
+                    book.getPublisher(),
+                    book.getQuantity(),
+                    book.getIssuedNo()) ;
+
+            books.add(newBook);
             Utils.updateBookFile(books);
             return "Book is added";
         } else {
@@ -98,7 +107,7 @@ public class BookService {
                 if(bookObj.getId() == book.getId()){
 
                     Book updatebook = new Book( book.getId(),
-                            book.getCallno(),
+                            bookObj.getCallno(),
                             book.getName(),
                             book.getAuthor(),
                             book.getPublisher(),
@@ -123,8 +132,24 @@ public class BookService {
                 .filter(book -> book.getCallno()
                         .equals(student.getCallno()))
                 .findFirst();
+        Optional<Student> studentFind = studentService.getStudents().stream()
+                .filter( innerStudent ->
+                        innerStudent.getId().equals( student.getId()) &&
+                                innerStudent.getCallno().equals( student.getCallno() )
+                ).findFirst();
+        if (studentFind.isPresent() &&
+                (book1.get().getCallno().equals( studentFind.get().getCallno()))
+                && (studentFind.get().isReturnStatus() == false)){
+            return "This book is already assign to this Student";
+        }
         if (book1.isPresent() && book1.get().getQuantity() > book1.get().getIssuedNo()) {
-            Student addNewStuden = new Student( student.getId(), student.getCallno(), student.getStudentName(),false,student.getStudentMobNumber(), new Date());
+            Student addNewStuden = new Student(
+                    student.getId(),
+                    student.getCallno(),
+                    student.getStudentName(),
+                    false,
+                    student.getStudentMobNumber(),
+                    LocalDate.now().format( formatter ));
 
             books  = books.stream()
                 .map(book ->{
@@ -145,7 +170,7 @@ public class BookService {
             studentService.getStudents().add( addNewStuden );
             Utils.updateBookFile(books );
             Utils.updateStudentFile(studentService.getStudents());
-            return "Book %s Issued.";
+            return "Book is Issued.";
         } else {
             return "Book is not available to Issue.";
         }
@@ -162,7 +187,7 @@ public class BookService {
                             studentObj.getStudentName(),
                             true,
                             studentObj.getStudentMobNumber(),
-                            new Date());
+                            LocalDate.now().format( formatter ));
                         isRecodeUpdate[0] = true;
                         return studentObj;
                     }
