@@ -9,7 +9,7 @@ public class Student {
     private final String studentName;
     private final boolean returnStatus;
     private final int studentMobNumber;
-    private final Date issuedDate;
+    private final String issuedDate;
 
     public Student() {
         this.callno = "";
@@ -21,7 +21,7 @@ public class Student {
     }
 
 
-    public Student(long id, String callno, String studentName, boolean returnStatus, int studentMobNumber, Date issuedDate) {
+    public Student(long id, String callno, String studentName, boolean returnStatus, int studentMobNumber, String issuedDate) {
         this.id = id;
         this.callno = callno;
         this.studentName = studentName;
@@ -50,7 +50,7 @@ public class Student {
         return studentMobNumber;
     }
 
-    public Date getIssuedDate() {
+    public String getIssuedDate() {
         return issuedDate;
     }
 }
