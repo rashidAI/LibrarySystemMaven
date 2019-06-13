@@ -6,10 +6,7 @@ import com.mobilelive.model.User;
 
 import javax.rmi.CORBA.Util;
 import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UserService {
@@ -39,19 +36,25 @@ public class UserService {
 
         if(!userFind.isPresent()){
             if (users.size() > 0 ){
-                User userInt = (User) users.stream()
-                        .max( Comparator.comparing(User::getId)).get();
-                currentUserId = userInt.getId();
-                newUser = new User(currentUserId+1,
-                        user.getName(),
-                        user.getEmail(),
-                        user.getPassword(),
-                        user.getMobileNumber(),
-                        "Librarian"
-                        );
+                try{
+                    System.out.println( users );
+                    User userInt =  (User) users.stream()
+                            .max(Comparator.comparing(User::getId)).get();
+                    currentUserId = userInt.getId() ;
+                    newUser = new User(++currentUserId,
+                            user.getName(),
+                            user.getEmail(),
+                            user.getPassword(),
+                            user.getMobileNumber(),
+                            "Librarian"
+                    );
+                } catch(Exception ex){
+                    System.out.print( ex );
+                    return "Some Exception accoured while adding User";
+                }
             }
-            users.add(user);
-            Utils.updateUserFile(users );
+            users.add(newUser);
+            Utils.updateUserFile(users);
             return "New User is added";
         } else {
             return "User 'email: "+user.getEmail()+"' is already assign.";
