@@ -232,7 +232,7 @@ public class LibarayServer extends HttpApp {
 
     private Route putBook(){
         return route(put(() -> entity( Jackson.unmarshaller(Book.class), book -> {
-            CompletionStage<BookMessages.ActionPerformed> userCreated = PatternsCS.ask(userActor, new BookMessages.UpdateBookMessage(book), timeout)
+            CompletionStage<BookMessages.ActionPerformed> userCreated = PatternsCS.ask(bookActor, new BookMessages.UpdateBookMessage(book), timeout)
                     .thenApply(obj -> (BookMessages.ActionPerformed) obj);
 
             return onSuccess(() -> userCreated, performed -> {
